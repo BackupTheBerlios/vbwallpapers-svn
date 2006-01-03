@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+
+use lib $ENV{'HOME'}.'/devel';
+
+use strict;
+use VBWallpapers::Core qw(getWallpaper setWallpaper);
+use Data::Dumper;
+
+my $first = 1;
+while ($first || sleep(10)) {
+    $first = 0;
+    my $wallpaper = getWallpaper;
+    print "Solve: ",$wallpaper,"\n";
+    if (! setWallpaper $wallpaper) {
+	print "Failed setting $wallpaper ...";
+	$first = 0;
+    };
+}
