@@ -33,7 +33,7 @@ my $first = 1;
 while ($first || sleep(10)) {
     $first = 0;
     my $wallpaper = getWallpaper;
-    break if not defined $wallpaper;
+    last if not defined $wallpaper;
     print "Solve: ",$wallpaper,"\n";
     if (! setWallpaper $wallpaper) {
 	print "Failed setting $wallpaper ...";
