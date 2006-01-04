@@ -115,6 +115,8 @@ sub getCoreConfig {
 # ask to all module their config
 # write it properly to config module file
 sub saveConfig {
+    print "Core: Saving configuration ...\n";
+
     open F, ">$config{'system'}{'configfile'}";
 
     #Write system conf part
@@ -131,6 +133,7 @@ sub saveConfig {
 	    print F $left,'=',$conf->{$left},"\n";
 	}
     }
+
     close F;
 }
 
@@ -260,12 +263,23 @@ sub init {
 
 }
 
+#Save and Exit
+# Usefull for signal below
+sub saveAndExit {
+    saveConfig;
+    exit 0;
+}
+
 #Auto run init
 init;
 
 #Saveconfig before unloading Core module
-END {
-   print "Core: Saving configuration ...\n";
-   saveConfig;
-}
+#They capture all kill signal
+#INT: interruption by use (CTRL + C)
+#QUIT: Quit send signal
+#TERM: killall default signal
+$SIG{INT} = \&saveAndExit;
+$SIG{QUIT} = \&saveAndExit;
+$SIG{TERM} = \&saveAndExit;
+
 1;
