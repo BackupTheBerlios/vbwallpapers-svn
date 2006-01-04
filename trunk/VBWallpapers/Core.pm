@@ -1,30 +1,59 @@
 package VBWallpapers::Core;
 
-use strict;
-use WWW::Mechanize;
-use Digest::MD5 qw(md5_hex);
+#VBWallpapers core
+#This is the core module
+#They give all function that plugins need
+#They load all plugins automatically and use it for getting wallpapers
 
+#Copyright (C) 2006 Bachelier Hoarau Vincent
+
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+
+#Load all necessary module
+use strict;
+use WWW::Mechanize;           #Need for getting and browsing web site
+use Digest::MD5 qw(md5_hex);  #Need for saving file with md5 of their address link
+
+#Use exporter for allowing other program to use it's function
+#%config is a hash that will contain all module and all configuration files
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %config);
 
 $VERSION = '0.01'; #Date: 2006/01/03 13:30
 
+#Exporting all global function
+#Usefull for plugins and main application
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(getRandom getBrowser getCoreConfig getWallpaper setWallpaper);
 
 
-use Data::Dumper;
-
 #getRandom
-# return random keys of an hash
+# return random keys of an hash or and array
 sub getRandom {
     my $tabparams = shift;
     my @tab;
+
+    #Get key of an array or an hash
     if (ref $tabparams eq 'ARRAY') {
 	@tab = @{$tabparams};
     } else {
 	@tab = keys %$tabparams;
     }
+
+    #Return random of these key	
     if ($#tab < 0) {
 	return;
     } else {
@@ -32,12 +61,20 @@ sub getRandom {
     }
 }
 
+#getRandomPluginName
+# return any plugin name of active plugins
 sub getRandomPluginName {
+
+    #get all plugin name
     my @pluginslist = keys %{$config{'modules'}};
+
+    #Fill this array with all still active plugin
     my @pluginslistavailable;
     foreach my $pluginname (@pluginslist) {
 	push @pluginslistavailable, $pluginname if ($config{'modules'}{$pluginname}->isActive);
     }
+
+    #return any of it
     return getRandom \@pluginslistavailable;
 }
 
@@ -79,9 +116,13 @@ sub getCoreConfig {
 # write it properly to config module file
 sub saveConfig {
     open F, ">$config{'system'}{'configfile'}";
+
+    #Write system conf part
     for my $left (keys %{$config{'systemconf'}}) {
 	print F $left,'=',$config{'systemconf'}{$left},"\n";
     }
+
+    #Write module conf part
     for my $pluginname (keys %{$config{'modules'}}) {
 	print F '[',$pluginname,']',"\n";
 	my $plugin = $config{'modules'}{$pluginname};
@@ -98,14 +139,13 @@ sub getWallpaper {
     my $pluginname;
     my $wallpaper;
 
+    #Look any wallpaper from all module
     while (!defined $wallpaper) {
 	$pluginname = getRandomPluginName;
 	return if ! defined $pluginname;
 	print "Try with plugin: $pluginname ...\n";
 	$wallpaper = $config{'modules'}{$pluginname}->getWallpaper;
     }
-
-    saveConfig;
 
     return $wallpaper;
 }
@@ -220,6 +260,12 @@ sub init {
 
 }
 
+#Auto run init
 init;
 
+#Saveconfig before unloading Core module
+END {
+   print "Core: Saving configuration ...\n";
+   saveConfig;
+}
 1;

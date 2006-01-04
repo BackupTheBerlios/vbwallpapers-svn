@@ -1,18 +1,43 @@
 #!/usr/bin/perl
 
+#VBWallpapers main program
+#This part of the tools will load main module
+#Ask it wallpapers link and set it
+#This tools allow you too to set configuration of the program
+
+#Copyright (C) 2006 Bachelier Hoarau Vincent
+
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+
+#Set default lib directory to the devel subdir in your home
 use lib $ENV{'HOME'}.'/devel';
 
+#Load all modules need
 use strict;
 use VBWallpapers::Core qw(getWallpaper setWallpaper);
-use Data::Dumper;
 
 my $first = 1;
 while ($first || sleep(10)) {
     $first = 0;
     my $wallpaper = getWallpaper;
+    break if not defined $wallpaper;
     print "Solve: ",$wallpaper,"\n";
     if (! setWallpaper $wallpaper) {
 	print "Failed setting $wallpaper ...";
 	$first = 0;
     };
 }
+
